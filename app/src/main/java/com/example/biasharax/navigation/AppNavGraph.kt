@@ -2,59 +2,40 @@ package com.example.biasharax.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.biasharax.ui.screens.dashboard.DashboardScreen
+import androidx.navigation.compose.*
 import com.example.biasharax.ui.screens.login.LoginScreen
 import com.example.biasharax.ui.screens.register.RegisterScreen
+import com.example.biasharax.ui.screens.dashboard.DashboardScreen
 
-sealed class Screen(val route: String) {
-    object Login : Screen("login")
-    object Register : Screen("register")
-    object Dashboard : Screen("dashboard")
+// ── ROUTES (Centralized) ─────────────────────────────
+object Routes {
+    const val LOGIN = "login"
+    const val REGISTER = "register"
+    const val DASHBOARD = "dashboard"
 }
 
+// ── NAV GRAPH ────────────────────────────────────────
 @Composable
-fun AppNavGraph(
-    navController: NavHostController = rememberNavController()
-) {
+fun AppNavGraph(navController: NavHostController) {
+
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route
+        startDestination = Routes.LOGIN   // first screen user sees
     ) {
-        composable(Screen.Login.route) {
-            LoginScreen(
-                onLoginSuccess = {
-                    navController.navigate(Screen.Dashboard.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
-                    }
-                },
-                onNavigateToRegister = {
-                    navController.navigate(Screen.Register.route)
-                }
-            )
+
+        // 🔐 Login
+        composable(Routes.LOGIN) {
+            LoginScreen(navController)
         }
-        composable(Screen.Register.route) {
-            RegisterScreen(
-                onRegisterSuccess = {
-                    navController.navigate(Screen.Dashboard.route) {
-                        popUpTo(Screen.Register.route) { inclusive = true }
-                    }
-                },
-                onNavigateToLogin = {
-                    navController.popBackStack()
-                }
-            )
+
+        // 📝 Register
+        composable(Routes.REGISTER) {
+            RegisterScreen(navController)
         }
-        composable(Screen.Dashboard.route) {
-            DashboardScreen(
-                onLogout = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Dashboard.route) { inclusive = true }
-                    }
-                }
-            )
+
+        // 📊 Dashboard
+        composable(Routes.DASHBOARD) {
+            DashboardScreen(navController)
         }
     }
 }
