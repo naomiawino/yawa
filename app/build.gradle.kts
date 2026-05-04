@@ -1,10 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
 }
 
 android {
-    namespace = "com.example.biasharax"
+    namespace = "com.example.dukapro"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -12,7 +13,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.biasharax"
+        applicationId = "com.example.dukapro"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -58,4 +59,8 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
 }

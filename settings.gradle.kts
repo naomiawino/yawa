@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "biasharax"
+rootProject.name = "dukapro"
 include(":app")
  

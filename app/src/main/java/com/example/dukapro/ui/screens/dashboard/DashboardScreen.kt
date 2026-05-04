@@ -1,4 +1,4 @@
-package com.example.biasharax.ui.screens.dashboard
+package com.example.dukapro.ui.screens.dashboard
 
 
 import androidx.compose.foundation.background
@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.biasharax.navigation.Routes
+import com.example.dukapro.navigation.Routes
 
 // Colors
 val DarkBg = Color(0xFF020617)
@@ -68,7 +68,7 @@ fun DashboardScreen(navController: NavController) {
 
             // 🔝 Header
             Text(
-                text = "Biashara Dashboard",
+                text = "DukaPro Dashboard",
                 color = Color.White,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold

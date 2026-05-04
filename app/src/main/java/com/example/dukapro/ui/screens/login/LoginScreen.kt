@@ -1,4 +1,4 @@
-package com.example.biasharax.ui.screens.login
+package com.example.dukapro.ui.screens.login
 
 
 import androidx.compose.foundation.background
@@ -18,9 +18,8 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import kotlinx.coroutines.GlobalScope
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 
 
 // Theme colors (match your app)
@@ -158,12 +157,17 @@ fun LoginScreen(navController: NavController) {
                                     errorMessage = ""
                                     isLoading = true
 
-                                    // Simulate login (replace with Firebase later)
-                                    scope.launch {
-                                        delay(1500)
-                                        isLoading = false
-                                        navController.navigate("dashboard")
-                                    }
+                                    FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                                        .addOnCompleteListener { task ->
+                                            isLoading = false
+                                            if (task.isSuccessful) {
+                                                navController.navigate("dashboard") {
+                                                    popUpTo("login") { inclusive = true }
+                                                }
+                                            } else {
+                                                errorMessage = task.exception?.message ?: "Login failed"
+                                            }
+                                        }
                                 }
                             }
                         },

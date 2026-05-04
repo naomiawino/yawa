@@ -1,4 +1,4 @@
-package com.example.biasharax.ui.screens.payment
+package com.example.dukapro.ui.screens.payment
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

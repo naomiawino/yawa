@@ -1,4 +1,4 @@
-package com.example.biasharax.ui.theme
+package com.example.dukapro.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -34,7 +34,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun BiasharaxTheme(
+fun DukaProTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,

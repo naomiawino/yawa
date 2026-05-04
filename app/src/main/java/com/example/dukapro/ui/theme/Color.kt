@@ -1,4 +1,4 @@
-package com.example.biasharax.ui.theme
+package com.example.dukapro.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

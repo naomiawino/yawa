@@ -1,4 +1,4 @@
-package com.example.biasharax.ui.screens.register
+package com.example.dukapro.ui.screens.register
 
 
 
@@ -19,7 +19,8 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import kotlinx.coroutines.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 val DarkBg = Color(0xFF020617)
 val CardBg = Color(0xFF0F172A)
@@ -79,7 +80,7 @@ fun RegisterScreen(navController: NavController) {
             )
 
             Text(
-                text = "Start managing your biashara today",
+                text = "Start managing your DukaPro today",
                 color = TextDim,
                 fontSize = 13.sp
             )
@@ -192,12 +193,35 @@ fun RegisterScreen(navController: NavController) {
                                     errorMessage = ""
                                     isLoading = true
 
-                                    // Simulate registration
-                                    GlobalScope.launch {
-                                        delay(1500)
-                                        isLoading = false
-                                        navController.navigate("dashboard")
-                                    }
+                                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                                        .addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                val userId = FirebaseAuth.getInstance().currentUser?.uid
+                                                val userMap = hashMapOf(
+                                                    "name" to name,
+                                                    "email" to email,
+                                                    "phone" to phone,
+                                                    "userId" to userId
+                                                )
+
+                                                FirebaseFirestore.getInstance().collection("users")
+                                                    .document(userId!!)
+                                                    .set(userMap)
+                                                    .addOnSuccessListener {
+                                                        isLoading = false
+                                                        navController.navigate("dashboard") {
+                                                            popUpTo("register") { inclusive = true }
+                                                        }
+                                                    }
+                                                    .addOnFailureListener {
+                                                        isLoading = false
+                                                        errorMessage = it.message ?: "Failed to save user data"
+                                                    }
+                                            } else {
+                                                isLoading = false
+                                                errorMessage = task.exception?.message ?: "Registration failed"
+                                            }
+                                        }
                                 }
                             }
                         },

@@ -1,4 +1,4 @@
-package com.example.biasharax.ui.screens.addproduct
+package com.example.dukapro.ui.screens.addproduct
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
 
 val DarkBg = Color(0xFF020617)
 val CardBg = Color(0xFF0F172A)
@@ -94,8 +95,17 @@ fun AddProductScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    // In a real app, you'd save this to a database (e.g. Firebase)
-                    navController.popBackStack()
+                    val db = FirebaseFirestore.getInstance()
+                    val product = hashMapOf(
+                        "name" to productName,
+                        "price" to productPrice,
+                        "stock" to productStock
+                    )
+                    db.collection("products")
+                        .add(product)
+                        .addOnSuccessListener {
+                            navController.popBackStack()
+                        }
                 },
                 modifier = Modifier
                     .fillMaxWidth()

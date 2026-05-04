@@ -1,13 +1,13 @@
-package com.example.biasharax.navigation
+package com.example.dukapro.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.example.biasharax.ui.screens.login.LoginScreen
-import com.example.biasharax.ui.screens.register.RegisterScreen
-import com.example.biasharax.ui.screens.dashboard.DashboardScreen
-import com.example.biasharax.ui.screens.payment.PaymentScreen
-import com.example.biasharax.ui.screens.addproduct.AddProductScreen
+import com.example.dukapro.ui.screens.login.LoginScreen
+import com.example.dukapro.ui.screens.register.RegisterScreen
+import com.example.dukapro.ui.screens.dashboard.DashboardScreen
+import com.example.dukapro.ui.screens.payment.PaymentScreen
+import com.example.dukapro.ui.screens.addproduct.AddProductScreen
 
 // ── ROUTES (Centralized) ─────────────────────────────
 object Routes {
