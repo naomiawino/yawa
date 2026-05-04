@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.biasharax.navigation.Routes
 
 // Colors
 val DarkBg = Color(0xFF020617)
@@ -42,7 +43,11 @@ fun DashboardScreen(navController: NavController) {
         Product("Sugar 2kg", "KES 320", "12 in stock"),
         Product("Milk Packet", "KES 60", "40 in stock"),
         Product("Bread", "KES 70", "25 in stock"),
-        Product("Cooking Oil", "KES 350", "10 in stock")
+        Product("Cooking Oil", "KES 350", "10 in stock"),
+        Product("Maize Flour 2kg", "KES 180", "15 in stock"),
+        Product("Salt 1kg", "KES 35", "50 in stock"),
+        Product("Tea Leaves", "KES 50", "30 in stock"),
+        Product("Rice 5kg", "KES 850", "8 in stock")
     )
 
     val filtered = products.filter {
@@ -76,7 +81,8 @@ fun DashboardScreen(navController: NavController) {
                 value = search,
                 onValueChange = { search = it },
                 placeholder = { Text("Search product...", color = TextDim) },
-                leadingIcon = { Icon(Icons.Default.Search, null) },
+                leadingIcon = { Icon(
+                    Icons.Default.Search, null) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -108,7 +114,9 @@ fun DashboardScreen(navController: NavController) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(filtered) { product ->
-                    ProductCard(product)
+                    ProductCard(product) {
+                        navController.navigate(Routes.PAYMENT)
+                    }
                 }
             }
         }
@@ -116,7 +124,7 @@ fun DashboardScreen(navController: NavController) {
         // ➕ Floating Button
         FloatingActionButton(
             onClick = {
-                // TODO navigate to add product
+                navController.navigate(Routes.ADD_PRODUCT)
             },
             containerColor = Green,
             modifier = Modifier
@@ -148,12 +156,12 @@ fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
 
 // 📦 Product Card
 @Composable
-fun ProductCard(product: Product) {
+fun ProductCard(product: Product, onClick: () -> Unit) {
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { },
+            .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = CardBg),
         shape = RoundedCornerShape(14.dp)
     ) {

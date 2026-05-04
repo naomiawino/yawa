@@ -18,6 +18,10 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
+
 
 // Theme colors (match your app)
 val DarkBg = Color(0xFF020617)
@@ -36,6 +40,7 @@ fun LoginScreen(navController: NavController) {
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
+    val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -73,7 +78,7 @@ fun LoginScreen(navController: NavController) {
             )
 
             Text(
-                text = "Login to continue managing your biashara",
+                text = "Login to continue shopping with us",
                 color = TextDim,
                 fontSize = 13.sp
             )
@@ -135,6 +140,7 @@ fun LoginScreen(navController: NavController) {
                             fontSize = 12.sp
                         )
                     }
+                   val scope = rememberCoroutineScope()
 
                     // 🔐 Login Button
                     Button(
@@ -153,8 +159,8 @@ fun LoginScreen(navController: NavController) {
                                     isLoading = true
 
                                     // Simulate login (replace with Firebase later)
-                                    kotlinx.coroutines.GlobalScope.launch {
-                                        kotlinx.coroutines.delay(1500)
+                                    scope.launch {
+                                        delay(1500)
                                         isLoading = false
                                         navController.navigate("dashboard")
                                     }
