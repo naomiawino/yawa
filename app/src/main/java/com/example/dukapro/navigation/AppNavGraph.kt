@@ -43,8 +43,9 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
         // 💳 Payment
-        composable(Routes.PAYMENT) {
-            PaymentScreen(navController)
+        composable("${Routes.PAYMENT}/{price}") { backStackEntry ->
+            val price = backStackEntry.arguments?.getString("price") ?: "0"
+            PaymentScreen(navController, price)
         }
 
         // ➕ Add Product (Admin)

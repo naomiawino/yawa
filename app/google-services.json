@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "629269501490",
+    "project_id": "dukapro-d1349",
+    "storage_bucket": "dukapro-d1349.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:629269501490:android:5a2b5766a10df986fbce2b",
+        "android_client_info": {
+          "package_name": "com.example.dukapro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwVR-oz3EalM52SV6tfaPx4yvctfvDGq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

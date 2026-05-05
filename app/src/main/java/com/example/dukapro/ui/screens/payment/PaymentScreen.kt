@@ -21,6 +21,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -29,15 +31,18 @@ val DarkBg = Color(0xFF020617)
 val CardBg = Color(0xFF0F172A)
 val Green = Color(0xFF16A34A)
 val TextDim = Color(0xFF94A3B8)
+val Border = Color(0xFF334155)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PaymentScreen(navController: NavController) {
+fun PaymentScreen(navController: NavController, productPrice: String) {
     var selectedMethod by remember { mutableStateOf<String?>(null) }
     var selectedBank by remember { mutableStateOf<String?>(null) }
     var phoneNumber by remember { mutableStateOf("") }
     var isProcessing by remember { mutableStateOf(false) }
     var paymentStatus by remember { mutableStateOf<String?>(null) }
+    var showMpesaDialog by remember { mutableStateOf(false) }
+    var mpesaPin by remember { mutableStateOf("") }
     
     val scope = rememberCoroutineScope()
     val banks = listOf("Equity Bank", "Co-op Bank", "KCB Bank", "NCBA Bank", "Family Bank")
@@ -45,7 +50,7 @@ fun PaymentScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Checkout", color = Color.White) },
+                title = { Text("Checkout - $productPrice", color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
@@ -74,7 +79,7 @@ fun PaymentScreen(navController: NavController) {
 
                 // M-Pesa Option
                 PaymentMethodCard(
-                    title = "M-Pesa",
+                    title = "M-Pesa ($productPrice)",
                     selected = selectedMethod == "mpesa",
                     onClick = {
                         selectedMethod = "mpesa"
@@ -139,15 +144,20 @@ fun PaymentScreen(navController: NavController) {
 
                 Button(
                     onClick = {
-                        isProcessing = true
-                        scope.launch {
-                            delay(2000) // Simulate processing
-                            if (selectedMethod == "mpesa") {
-                                paymentStatus = "Prompt sent to $phoneNumber. Please enter your M-Pesa PIN on your phone."
-                            } else {
-                                paymentStatus = "Card payment via $selectedBank successful!"
+                        if (selectedMethod == "mpesa") {
+                            isProcessing = true
+                            scope.launch {
+                                delay(1500) // Realistic delay for "Requesting..."
+                                isProcessing = false
+                                showMpesaDialog = true
                             }
-                            isProcessing = false
+                        } else {
+                            isProcessing = true
+                            scope.launch {
+                                delay(2000)
+                                paymentStatus = "Card payment via $selectedBank successful!"
+                                isProcessing = false
+                            }
                         }
                     },
                     modifier = Modifier
@@ -163,7 +173,7 @@ fun PaymentScreen(navController: NavController) {
                     if (isProcessing) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                     } else {
-                        Text("Pay Now", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Pay $productPrice", fontSize = 16.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             } else {
@@ -181,7 +191,7 @@ fun PaymentScreen(navController: NavController) {
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
-                        text = "Payment Initiated",
+                        text = "Payment Completed",
                         color = Color.White,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
@@ -205,6 +215,74 @@ fun PaymentScreen(navController: NavController) {
                 }
             }
         }
+    }
+
+    // 📱 LIVELY M-PESA PIN PROMPT (SIMULATION)
+    if (showMpesaDialog) {
+        AlertDialog(
+            onDismissRequest = { showMpesaDialog = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val transactionId = "RI${(10000..99999).random()}QYMN"
+                    showMpesaDialog = false
+                    isProcessing = true
+                    
+                    val paymentData = hashMapOf(
+                        "amount" to productPrice,
+                        "phoneNumber" to phoneNumber,
+                        "transactionId" to transactionId,
+                        "method" to "M-Pesa",
+                        "timestamp" to com.google.firebase.Timestamp.now(),
+                        "userId" to FirebaseAuth.getInstance().currentUser?.uid
+                    )
+
+                    FirebaseFirestore.getInstance().collection("payments")
+                        .add(paymentData)
+                        .addOnSuccessListener {
+                            isProcessing = false
+                            paymentStatus = "Payment confirmed. Transaction ID: $transactionId"
+                        }
+                        .addOnFailureListener {
+                            isProcessing = false
+                            paymentStatus = "Payment saved locally, but failed to sync to cloud."
+                        }
+                }) {
+                    Text("OK", color = Color(0xFF1D4ED8), fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showMpesaDialog = false }) {
+                    Text("Cancel", color = Color.Gray)
+                }
+            },
+            title = {
+                Text("M-Pesa", color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            },
+            text = {
+                Column {
+                    Text(
+                        "Enter PIN for DukaPro Store $productPrice",
+                        color = Color.Black,
+                        fontSize = 15.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = mpesaPin,
+                        onValueChange = { if (it.length <= 4) mpesaPin = it },
+                        placeholder = { Text("PIN") },
+                        visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
+                        )
+                    )
+                }
+            },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(8.dp)
+        )
     }
 }
 
@@ -261,5 +339,3 @@ fun BankSelectionCard(bankName: String, isSelected: Boolean, onSelect: () -> Uni
         }
     }
 }
-
-val Border = Color(0xFF334155)

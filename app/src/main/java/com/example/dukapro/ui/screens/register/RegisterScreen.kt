@@ -190,10 +190,12 @@ fun RegisterScreen(navController: NavController) {
                                 password.length < 6 -> errorMessage = "Password must be at least 6 characters"
                                 password != confirmPassword -> errorMessage = "Passwords do not match"
                                 else -> {
+                                    val trimmedEmail = email.trim()
+                                    val trimmedPassword = password.trim()
                                     errorMessage = ""
                                     isLoading = true
 
-                                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password)
+                                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(trimmedEmail, trimmedPassword)
                                         .addOnCompleteListener { task ->
                                             if (task.isSuccessful) {
                                                 val userId = FirebaseAuth.getInstance().currentUser?.uid

@@ -27,6 +27,8 @@ fun AddProductScreen(navController: NavController) {
     var productName by remember { mutableStateOf("") }
     var productPrice by remember { mutableStateOf("") }
     var productStock by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
@@ -91,10 +93,16 @@ fun AddProductScreen(navController: NavController) {
                 )
             )
 
+            if (errorMessage.isNotEmpty()) {
+                Text(errorMessage, color = Color.Red, fontSize = 12.sp)
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             Button(
                 onClick = {
+                    isLoading = true
+                    errorMessage = ""
                     val db = FirebaseFirestore.getInstance()
                     val product = hashMapOf(
                         "name" to productName,
@@ -104,7 +112,12 @@ fun AddProductScreen(navController: NavController) {
                     db.collection("products")
                         .add(product)
                         .addOnSuccessListener {
+                            isLoading = false
                             navController.popBackStack()
+                        }
+                        .addOnFailureListener {
+                            isLoading = false
+                            errorMessage = "Error: ${it.message}"
                         }
                 },
                 modifier = Modifier
@@ -112,9 +125,13 @@ fun AddProductScreen(navController: NavController) {
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Green),
                 shape = RoundedCornerShape(12.dp),
-                enabled = productName.isNotBlank() && productPrice.isNotBlank() && productStock.isNotBlank()
+                enabled = !isLoading && productName.isNotBlank() && productPrice.isNotBlank() && productStock.isNotBlank()
             ) {
-                Text("Save Product", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                if (isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text("Save Product", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }

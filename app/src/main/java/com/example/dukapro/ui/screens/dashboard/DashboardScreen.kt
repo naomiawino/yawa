@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.dukapro.navigation.Routes
+import com.google.firebase.firestore.FirebaseFirestore
 
 // Colors
 val DarkBg = Color(0xFF020617)
@@ -28,27 +29,49 @@ val TextDim = Color(0xFF94A3B8)
 
 // Data Model
 data class Product(
-    val name: String,
-    val price: String,
-    val stock: String
+    val id: String = "",
+    val name: String = "",
+    val price: String = "",
+    val stock: String = ""
 )
 
 @Composable
 fun DashboardScreen(navController: NavController) {
 
     var search by remember { mutableStateOf("") }
+    val products = remember { mutableStateListOf<Product>() }
+    var totalSales by remember { mutableIntStateOf(0) }
+    var isLoading by remember { mutableStateOf(true) }
 
-    // Sample data (later replace with Firebase)
-    val products = listOf(
-        Product("Sugar 2kg", "KES 320", "12 in stock"),
-        Product("Milk Packet", "KES 60", "40 in stock"),
-        Product("Bread", "KES 70", "25 in stock"),
-        Product("Cooking Oil", "KES 350", "10 in stock"),
-        Product("Maize Flour 2kg", "KES 180", "15 in stock"),
-        Product("Salt 1kg", "KES 35", "50 in stock"),
-        Product("Tea Leaves", "KES 50", "30 in stock"),
-        Product("Rice 5kg", "KES 850", "8 in stock")
-    )
+    // Fetch products and calculate sales from Firebase
+    LaunchedEffect(Unit) {
+        val db = FirebaseFirestore.getInstance()
+        
+        // Listen for products
+        db.collection("products").addSnapshotListener { snapshot, _ ->
+            if (snapshot != null) {
+                products.clear()
+                products.addAll(snapshot.toObjects(Product::class.java).mapIndexed { index, p -> 
+                    p.copy(id = snapshot.documents[index].id)
+                })
+            }
+            isLoading = false
+        }
+
+        // Listen for sales
+        db.collection("payments").addSnapshotListener { snapshot, _ ->
+            if (snapshot != null) {
+                var sum = 0
+                for (doc in snapshot.documents) {
+                    val amountStr = doc.getString("amount") ?: "0"
+                    // Extract number from "KES 300"
+                    val numericValue = amountStr.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
+                    sum += numericValue
+                }
+                totalSales = sum
+            }
+        }
+    }
 
     val filtered = products.filter {
         it.name.contains(search, ignoreCase = true)
@@ -95,7 +118,7 @@ fun DashboardScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatCard("Products", "${products.size}", Modifier.weight(1f))
-                StatCard("Sales", "KES 12K", Modifier.weight(1f))
+                StatCard("Sales", "KES ${totalSales}", Modifier.weight(1f))
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -110,12 +133,22 @@ fun DashboardScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(10.dp))
 
             // 📦 Product List
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(filtered) { product ->
-                    ProductCard(product) {
-                        navController.navigate(Routes.PAYMENT)
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Green)
+                }
+            } else if (products.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No products found. Add some!", color = TextDim)
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(filtered) { product ->
+                        ProductCard(product) {
+                            navController.navigate("${Routes.PAYMENT}/${product.price}")
+                        }
                     }
                 }
             }

@@ -157,7 +157,9 @@ fun LoginScreen(navController: NavController) {
                                     errorMessage = ""
                                     isLoading = true
 
-                                    FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                                    val trimmedEmail = email.trim()
+                                    val trimmedPassword = password.trim()
+                                    FirebaseAuth.getInstance().signInWithEmailAndPassword(trimmedEmail, trimmedPassword)
                                         .addOnCompleteListener { task ->
                                             isLoading = false
                                             if (task.isSuccessful) {
