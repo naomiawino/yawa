@@ -275,18 +275,18 @@ fun RegisterScreen(navController: NavController, viewModel: DukaViewModel = view
                                                 val userId = viewModel.getUserId()
                                                 val user = User(
                                                     userId = userId!!,
-                                                    name = name,
-                                                    email = email,
-                                                    phone = phone
+                                                    name = name.trim(),
+                                                    email = trimmedEmail,
+                                                    phone = phone.trim()
                                                 )
 
                                                 viewModel.saveUser(user) { success ->
-                                                    isLoading = false
                                                     if (success) {
                                                         navController.navigate("dashboard") {
                                                             popUpTo("register") { inclusive = true }
                                                         }
                                                     } else {
+                                                        isLoading = false
                                                         errorMessage = "Failed to save user data"
                                                     }
                                                 }

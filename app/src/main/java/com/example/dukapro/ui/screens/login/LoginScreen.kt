@@ -191,12 +191,12 @@ fun LoginScreen(navController: NavController, viewModel: DukaViewModel = viewMod
                                     val trimmedPassword = password.trim()
                                     viewModel.signIn(trimmedEmail, trimmedPassword)
                                         .addOnCompleteListener { task ->
-                                            isLoading = false
                                             if (task.isSuccessful) {
                                                 navController.navigate("dashboard") {
                                                     popUpTo("login") { inclusive = true }
                                                 }
                                             } else {
+                                                isLoading = false
                                                 errorMessage = task.exception?.message ?: "Login failed"
                                             }
                                         }

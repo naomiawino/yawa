@@ -30,10 +30,13 @@ class FirebaseRepository {
         return auth.createUserWithEmailAndPassword(email, password)
     }
 
-    // Products
     fun getProducts(): Flow<List<Product>> = callbackFlow {
         val subscription = db.collection("products")
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(emptyList()) // Return empty on error to stop loading
+                    return@addSnapshotListener
+                }
                 if (snapshot != null) {
                     val products = snapshot.toObjects(Product::class.java).mapIndexed { index, p ->
                         p.copy(id = snapshot.documents[index].id)
@@ -53,11 +56,14 @@ class FirebaseRepository {
         db.collection("products").add(product).await()
     }
 
-    // Orders / Payments
     fun getOrders(): Flow<List<Order>> = callbackFlow {
         val subscription = db.collection("payments")
             .orderBy("timestamp", Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(emptyList())
+                    return@addSnapshotListener
+                }
                 if (snapshot != null) {
                     val orders = snapshot.toObjects(Order::class.java).mapIndexed { index, order ->
                         order.copy(id = snapshot.documents[index].id)
@@ -70,7 +76,11 @@ class FirebaseRepository {
 
     fun getTotalSales(): Flow<Int> = callbackFlow {
         val subscription = db.collection("payments")
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    trySend(0)
+                    return@addSnapshotListener
+                }
                 if (snapshot != null) {
                     var sum = 0
                     for (doc in snapshot.documents) {

@@ -6,8 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -48,12 +50,37 @@ fun DashboardScreen(navController: NavController, viewModel: DukaViewModel = vie
         ) {
 
             // 🔝 Header
-            Text(
-                text = "DukaPro Dashboard",
-                color = TextPrimary,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "DukaPro Store",
+                        color = PrimaryTeal,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                    Text(
+                        text = "Welcome back!",
+                        color = TextSecondary,
+                        fontSize = 14.sp
+                    )
+                }
+
+                IconButton(
+                    onClick = {
+                        viewModel.signOut()
+                        navController.navigate(Routes.LOGIN) {
+                            popUpTo(Routes.DASHBOARD) { inclusive = true }
+                        }
+                    },
+                    modifier = Modifier.background(AccentPeach.copy(alpha = 0.1f), CircleShape)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Logout", tint = AccentPeach)
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -63,6 +90,13 @@ fun DashboardScreen(navController: NavController, viewModel: DukaViewModel = vie
                 onValueChange = { search = it },
                 placeholder = { Text("Search products...", color = TextSecondary) },
                 leadingIcon = { Icon(Icons.Default.Search, null, tint = PrimaryTeal) },
+                trailingIcon = {
+                    if (search.isNotEmpty()) {
+                        IconButton(onClick = { search = "" }) {
+                            Icon(Icons.Default.Clear, null, tint = TextSecondary)
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -70,8 +104,8 @@ fun DashboardScreen(navController: NavController, viewModel: DukaViewModel = vie
                     unfocusedTextColor = TextPrimary,
                     focusedBorderColor = PrimaryTeal,
                     unfocusedBorderColor = Border,
-                    focusedContainerColor = CardBg,
-                    unfocusedContainerColor = CardBg,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
                     cursorColor = PrimaryTeal
                 )
             )

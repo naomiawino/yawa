@@ -34,21 +34,25 @@ class DukaViewModel(private val repository: FirebaseRepository = FirebaseReposit
     private fun fetchData() {
         viewModelScope.launch {
             _isLoading.value = true
-            launch {
-                repository.getProducts().collect {
-                    _products.value = it
-                    _isLoading.value = false
+            try {
+                launch {
+                    repository.getProducts().collect {
+                        _products.value = it
+                        _isLoading.value = false
+                    }
                 }
-            }
-            launch {
-                repository.getOrders().collect {
-                    _orders.value = it
+                launch {
+                    repository.getOrders().collect {
+                        _orders.value = it
+                    }
                 }
-            }
-            launch {
-                repository.getTotalSales().collect {
-                    _totalSales.value = it
+                launch {
+                    repository.getTotalSales().collect {
+                        _totalSales.value = it
+                    }
                 }
+            } catch (e: Exception) {
+                _isLoading.value = false
             }
         }
     }
