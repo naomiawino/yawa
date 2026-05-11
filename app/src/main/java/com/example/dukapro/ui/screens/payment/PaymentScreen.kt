@@ -20,22 +20,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.example.dukapro.ui.viewmodel.DukaViewModel
+import com.example.dukapro.ui.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// Reusing colors from Dashboard for consistency
-val DarkBg = Color(0xFF020617)
-val CardBg = Color(0xFF0F172A)
-val Green = Color(0xFF16A34A)
-val TextDim = Color(0xFF94A3B8)
-val Border = Color(0xFF334155)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PaymentScreen(navController: NavController, productPrice: String) {
+fun PaymentScreen(navController: NavController, productPrice: String, viewModel: DukaViewModel = viewModel()) {
     var selectedMethod by remember { mutableStateOf<String?>(null) }
     var selectedBank by remember { mutableStateOf<String?>(null) }
     var phoneNumber by remember { mutableStateOf("") }
@@ -50,16 +44,16 @@ fun PaymentScreen(navController: NavController, productPrice: String) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Checkout - $productPrice", color = Color.White) },
+                title = { Text("Checkout - $productPrice", color = TextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundWhite)
             )
         },
-        containerColor = DarkBg
+        containerColor = BackgroundWhite
     ) { padding ->
         Column(
             modifier = Modifier
@@ -70,9 +64,9 @@ fun PaymentScreen(navController: NavController, productPrice: String) {
             if (paymentStatus == null) {
                 Text(
                     text = "Select Payment Method",
-                    color = Color.White,
+                    color = TextPrimary,
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -92,17 +86,20 @@ fun PaymentScreen(navController: NavController, productPrice: String) {
                     OutlinedTextField(
                         value = phoneNumber,
                         onValueChange = { if (it.length <= 10) phoneNumber = it },
-                        label = { Text("M-Pesa Phone Number", color = TextDim) },
-                        placeholder = { Text("0712345678", color = TextDim) },
-                        leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = Green) },
+                        label = { Text("M-Pesa Phone Number", color = TextSecondary) },
+                        placeholder = { Text("0712345678", color = TextSecondary) },
+                        leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null, tint = PrimaryTeal) },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = Green,
-                            unfocusedBorderColor = Border
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = PrimaryTeal,
+                            unfocusedBorderColor = Border,
+                            focusedLabelColor = PrimaryTeal,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
                         )
                     )
                 }
@@ -120,7 +117,7 @@ fun PaymentScreen(navController: NavController, productPrice: String) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Select Your Bank",
-                        color = Color.White,
+                        color = TextPrimary,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -163,7 +160,7 @@ fun PaymentScreen(navController: NavController, productPrice: String) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Green),
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryTeal),
                     shape = RoundedCornerShape(12.dp),
                     enabled = !isProcessing && (
                         (selectedMethod == "mpesa" && phoneNumber.length >= 10) || 
@@ -173,7 +170,7 @@ fun PaymentScreen(navController: NavController, productPrice: String) {
                     if (isProcessing) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                     } else {
-                        Text("Pay $productPrice", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                        Text("Pay $productPrice", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
             } else {
@@ -186,20 +183,20 @@ fun PaymentScreen(navController: NavController, productPrice: String) {
                     Icon(
                         Icons.Default.CheckCircle, 
                         contentDescription = null, 
-                        tint = Green, 
+                        tint = Color(0xFF2E7D32), 
                         modifier = Modifier.size(80.dp)
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
                         text = "Payment Completed",
-                        color = Color.White,
+                        color = TextPrimary,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = paymentStatus!!,
-                        color = TextDim,
+                        color = TextSecondary,
                         fontSize = 16.sp,
                         modifier = Modifier.padding(horizontal = 32.dp),
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -207,7 +204,7 @@ fun PaymentScreen(navController: NavController, productPrice: String) {
                     Spacer(modifier = Modifier.height(48.dp))
                     Button(
                         onClick = { navController.popBackStack() },
-                        colors = ButtonDefaults.buttonColors(containerColor = CardBg),
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryTeal),
                         modifier = Modifier.fillMaxWidth(0.7f)
                     ) {
                         Text("Back to Dashboard", color = Color.White)
@@ -227,27 +224,26 @@ fun PaymentScreen(navController: NavController, productPrice: String) {
                     showMpesaDialog = false
                     isProcessing = true
                     
-                    val paymentData = hashMapOf(
+                    val paymentData: Map<String, Any?> = hashMapOf(
                         "amount" to productPrice,
                         "phoneNumber" to phoneNumber,
                         "transactionId" to transactionId,
                         "method" to "M-Pesa",
                         "timestamp" to com.google.firebase.Timestamp.now(),
-                        "userId" to FirebaseAuth.getInstance().currentUser?.uid
+                        "userId" to viewModel.getUserId(),
+                        "status" to "Ordered"
                     )
 
-                    FirebaseFirestore.getInstance().collection("payments")
-                        .add(paymentData)
-                        .addOnSuccessListener {
-                            isProcessing = false
+                    viewModel.addOrder(paymentData) { success ->
+                        isProcessing = false
+                        if (success) {
                             paymentStatus = "Payment confirmed. Transaction ID: $transactionId"
-                        }
-                        .addOnFailureListener {
-                            isProcessing = false
+                        } else {
                             paymentStatus = "Payment saved locally, but failed to sync to cloud."
                         }
+                    }
                 }) {
-                    Text("OK", color = Color(0xFF1D4ED8), fontWeight = FontWeight.Bold)
+                    Text("OK", color = PrimaryTeal, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -275,7 +271,12 @@ fun PaymentScreen(navController: NavController, productPrice: String) {
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black
+                            unfocusedTextColor = Color.Black,
+                            focusedBorderColor = PrimaryTeal,
+                            unfocusedBorderColor = Border,
+                            focusedLabelColor = PrimaryTeal,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
                         )
                     )
                 }
@@ -293,9 +294,9 @@ fun PaymentMethodCard(title: String, selected: Boolean, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = if (selected) Green.copy(alpha = 0.1f) else CardBg
+            containerColor = if (selected) AccentPeach.copy(alpha = 0.1f) else CardBg
         ),
-        border = if (selected) androidx.compose.foundation.BorderStroke(2.dp, Green) else null,
+        border = if (selected) androidx.compose.foundation.BorderStroke(2.dp, AccentPeach) else androidx.compose.foundation.BorderStroke(1.dp, Border),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
@@ -305,9 +306,9 @@ fun PaymentMethodCard(title: String, selected: Boolean, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(title, color = Color.White, fontWeight = FontWeight.Bold)
+            Text(title, color = TextPrimary, fontWeight = FontWeight.Bold)
             if (selected) {
-                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Green)
+                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = AccentPeach)
             }
         }
     }
@@ -320,7 +321,7 @@ fun BankSelectionCard(bankName: String, isSelected: Boolean, onSelect: () -> Uni
             .fillMaxWidth()
             .clickable { onSelect() },
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Green.copy(alpha = 0.2f) else CardBg.copy(alpha = 0.5f)
+            containerColor = if (isSelected) AccentPeach.copy(alpha = 0.2f) else CardBg.copy(alpha = 0.5f)
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -333,9 +334,9 @@ fun BankSelectionCard(bankName: String, isSelected: Boolean, onSelect: () -> Uni
             RadioButton(
                 selected = isSelected,
                 onClick = onSelect,
-                colors = RadioButtonDefaults.colors(selectedColor = Green, unselectedColor = TextDim)
+                colors = RadioButtonDefaults.colors(selectedColor = AccentPeach, unselectedColor = TextSecondary)
             )
-            Text(bankName, color = Color.White, modifier = Modifier.padding(start = 8.dp))
+            Text(bankName, color = TextPrimary, modifier = Modifier.padding(start = 8.dp))
         }
     }
 }

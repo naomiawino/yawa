@@ -18,18 +18,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-
-val DarkBg = Color(0xFF020617)
-val CardBg = Color(0xFF0F172A)
-val Border = Color(0xFF334155)
-val Green = Color(0xFF16A34A)
-val TextDim = Color(0xFF94A3B8)
+import com.example.dukapro.data.models.User
+import com.example.dukapro.ui.viewmodel.DukaViewModel
+import com.example.dukapro.ui.theme.*
 
 @Composable
-fun RegisterScreen(navController: NavController) {
+fun RegisterScreen(navController: NavController, viewModel: DukaViewModel = viewModel()) {
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -46,7 +42,7 @@ fun RegisterScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBg),
+            .background(BackgroundWhite),
         contentAlignment = Alignment.Center
     ) {
 
@@ -59,115 +55,193 @@ fun RegisterScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // 🏪 Logo
+            // 🏪 Attractive Logo
             Box(
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(CardBg),
+                    .size(100.dp)
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colors = listOf(PrimaryTeal, AccentPeach)
+                        ),
+                        shape = CircleShape
+                    ),
                 contentAlignment = Alignment.Center
             ) {
-                Text("🛒", fontSize = 32.sp)
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp),
+                    tint = Color.White
+                )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Create Account",
-                color = Color.White,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold
+                text = "DukaPro Store",
+                color = PrimaryTeal,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.ExtraBold
             )
 
             Text(
                 text = "Start managing your DukaPro today",
-                color = TextDim,
-                fontSize = 13.sp
+                color = TextSecondary,
+                fontSize = 14.sp
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // 📦 Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = CardBg),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(24.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Border.copy(alpha = 0.5f))
             ) {
 
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
 
                     // Name
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
-                        placeholder = { Text("Full Name", color = TextDim) },
-                        leadingIcon = { Icon(Icons.Default.Person, null) },
-                        modifier = Modifier.fillMaxWidth()
+                        label = { Text("Full Name", color = TextSecondary) },
+                        placeholder = { Text("Enter your name", color = TextSecondary) },
+                        leadingIcon = { Icon(Icons.Default.Person, null, tint = PrimaryTeal) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = PrimaryTeal,
+                            unfocusedBorderColor = Border,
+                            focusedLabelColor = PrimaryTeal,
+                            unfocusedLabelColor = TextSecondary,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            cursorColor = PrimaryTeal
+                        )
                     )
 
                     // Email
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = { Text("Email", color = TextDim) },
-                        leadingIcon = { Icon(Icons.Default.Email, null) },
-                        modifier = Modifier.fillMaxWidth()
+                        label = { Text("Email Address", color = TextSecondary) },
+                        placeholder = { Text("Enter your email", color = TextSecondary) },
+                        leadingIcon = { Icon(Icons.Default.Email, null, tint = PrimaryTeal) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = PrimaryTeal,
+                            unfocusedBorderColor = Border,
+                            focusedLabelColor = PrimaryTeal,
+                            unfocusedLabelColor = TextSecondary,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            cursorColor = PrimaryTeal
+                        )
                     )
 
                     // Phone
                     OutlinedTextField(
                         value = phone,
                         onValueChange = { phone = it },
-                        placeholder = { Text("Phone Number", color = TextDim) },
-                        leadingIcon = { Icon(Icons.Default.Phone, null) },
-                        modifier = Modifier.fillMaxWidth()
+                        label = { Text("Phone Number", color = TextSecondary) },
+                        placeholder = { Text("Enter your phone", color = TextSecondary) },
+                        leadingIcon = { Icon(Icons.Default.Phone, null, tint = PrimaryTeal) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = PrimaryTeal,
+                            unfocusedBorderColor = Border,
+                            focusedLabelColor = PrimaryTeal,
+                            unfocusedLabelColor = TextSecondary,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            cursorColor = PrimaryTeal
+                        )
                     )
 
                     // Password
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        placeholder = { Text("Password", color = TextDim) },
-                        leadingIcon = { Icon(Icons.Default.Lock, null) },
+                        label = { Text("Password", color = TextSecondary) },
+                        placeholder = { Text("Choose a password", color = TextSecondary) },
+                        leadingIcon = { Icon(Icons.Default.Lock, null, tint = PrimaryTeal) },
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
                                     if (passwordVisible)
                                         Icons.Default.VisibilityOff
                                     else Icons.Default.Visibility,
-                                    null
+                                    null,
+                                    tint = TextSecondary
                                 )
                             }
                         },
                         visualTransformation = if (passwordVisible)
                             VisualTransformation.None
                         else PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = PrimaryTeal,
+                            unfocusedBorderColor = Border,
+                            focusedLabelColor = PrimaryTeal,
+                            unfocusedLabelColor = TextSecondary,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            cursorColor = PrimaryTeal
+                        )
                     )
 
                     // Confirm Password
                     OutlinedTextField(
                         value = confirmPassword,
                         onValueChange = { confirmPassword = it },
-                        placeholder = { Text("Confirm Password", color = TextDim) },
-                        leadingIcon = { Icon(Icons.Default.Lock, null) },
+                        label = { Text("Confirm Password", color = TextSecondary) },
+                        placeholder = { Text("Repeat your password", color = TextSecondary) },
+                        leadingIcon = { Icon(Icons.Default.Lock, null, tint = PrimaryTeal) },
                         trailingIcon = {
                             IconButton(onClick = { confirmVisible = !confirmVisible }) {
                                 Icon(
                                     if (confirmVisible)
                                         Icons.Default.VisibilityOff
                                     else Icons.Default.Visibility,
-                                    null
+                                    null,
+                                    tint = TextSecondary
                                 )
                             }
                         },
                         visualTransformation = if (confirmVisible)
                             VisualTransformation.None
                         else PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = PrimaryTeal,
+                            unfocusedBorderColor = Border,
+                            focusedLabelColor = PrimaryTeal,
+                            unfocusedLabelColor = TextSecondary,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            cursorColor = PrimaryTeal
+                        )
                     )
 
                     // ❗ Error Message
@@ -195,30 +269,27 @@ fun RegisterScreen(navController: NavController) {
                                     errorMessage = ""
                                     isLoading = true
 
-                                    FirebaseAuth.getInstance().createUserWithEmailAndPassword(trimmedEmail, trimmedPassword)
+                                    viewModel.signUp(trimmedEmail, trimmedPassword)
                                         .addOnCompleteListener { task ->
                                             if (task.isSuccessful) {
-                                                val userId = FirebaseAuth.getInstance().currentUser?.uid
-                                                val userMap = hashMapOf(
-                                                    "name" to name,
-                                                    "email" to email,
-                                                    "phone" to phone,
-                                                    "userId" to userId
+                                                val userId = viewModel.getUserId()
+                                                val user = User(
+                                                    userId = userId!!,
+                                                    name = name,
+                                                    email = email,
+                                                    phone = phone
                                                 )
 
-                                                FirebaseFirestore.getInstance().collection("users")
-                                                    .document(userId!!)
-                                                    .set(userMap)
-                                                    .addOnSuccessListener {
-                                                        isLoading = false
+                                                viewModel.saveUser(user) { success ->
+                                                    isLoading = false
+                                                    if (success) {
                                                         navController.navigate("dashboard") {
                                                             popUpTo("register") { inclusive = true }
                                                         }
+                                                    } else {
+                                                        errorMessage = "Failed to save user data"
                                                     }
-                                                    .addOnFailureListener {
-                                                        isLoading = false
-                                                        errorMessage = it.message ?: "Failed to save user data"
-                                                    }
+                                                }
                                             } else {
                                                 isLoading = false
                                                 errorMessage = task.exception?.message ?: "Registration failed"
@@ -230,7 +301,7 @@ fun RegisterScreen(navController: NavController) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Green),
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryTeal),
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         if (isLoading) {
@@ -240,7 +311,7 @@ fun RegisterScreen(navController: NavController) {
                                 strokeWidth = 2.dp
                             )
                         } else {
-                            Text("Create Account", fontWeight = FontWeight.Bold)
+                            Text("Create Account", fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
 
@@ -249,11 +320,11 @@ fun RegisterScreen(navController: NavController) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("Already have an account? ", color = TextDim)
+                        Text("Already have an account? ", color = TextSecondary)
                         Text(
                             text = "Login",
-                            color = Green,
-                            fontWeight = FontWeight.SemiBold,
+                            color = PrimaryTeal,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.clickable {
                                 navController.navigate("login")
                             }

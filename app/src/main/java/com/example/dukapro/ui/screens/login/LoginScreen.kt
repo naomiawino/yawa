@@ -17,33 +17,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
-
-
-// Theme colors (match your app)
-val DarkBg = Color(0xFF020617)
-val CardBg = Color(0xFF0F172A)
-val Border = Color(0xFF334155)
-val Green = Color(0xFF16A34A)
-val TextDim = Color(0xFF94A3B8)
+import com.example.dukapro.ui.viewmodel.DukaViewModel
+import com.example.dukapro.ui.theme.*
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, viewModel: DukaViewModel = viewModel()) {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-
     val scope = rememberCoroutineScope()
+
+    // rest of your UI...
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBg),
+            .background(BackgroundWhite),
         contentAlignment = Alignment.Center
     ) {
 
@@ -56,70 +50,95 @@ fun LoginScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            // 🏪 Logo
+            // 🏪 Attractive Logo
             Box(
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(CardBg),
+                    .size(100.dp)
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colors = listOf(PrimaryTeal, AccentPeach)
+                        ),
+                        shape = CircleShape
+                    ),
                 contentAlignment = Alignment.Center
             ) {
-                Text("🛒", fontSize = 32.sp)
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp),
+                    tint = Color.White
+                )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Welcome Back",
-                color = Color.White,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold
+                text = "DukaPro Store",
+                color = PrimaryTeal,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.ExtraBold
             )
 
             Text(
                 text = "Login to continue shopping with us",
-                color = TextDim,
-                fontSize = 13.sp
+                color = TextSecondary,
+                fontSize = 14.sp
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // 📦 Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = CardBg),
-                shape = RoundedCornerShape(20.dp)
+                shape = RoundedCornerShape(24.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Border.copy(alpha = 0.5f))
             ) {
 
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                    modifier = Modifier.padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
 
                     // Email
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        placeholder = { Text("Email", color = TextDim) },
-                        leadingIcon = { Icon(Icons.Default.Email, null) },
+                        label = { Text("Email Address", color = TextSecondary) },
+                        placeholder = { Text("Enter your email", color = TextSecondary) },
+                        leadingIcon = { Icon(Icons.Default.Email, null, tint = PrimaryTeal) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = PrimaryTeal,
+                            unfocusedBorderColor = Border,
+                            focusedLabelColor = PrimaryTeal,
+                            unfocusedLabelColor = TextSecondary,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            cursorColor = PrimaryTeal
+                        )
                     )
 
                     // Password
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        placeholder = { Text("Password", color = TextDim) },
-                        leadingIcon = { Icon(Icons.Default.Lock, null) },
+                        label = { Text("Password", color = TextSecondary) },
+                        placeholder = { Text("Enter your password", color = TextSecondary) },
+                        leadingIcon = { Icon(Icons.Default.Lock, null, tint = PrimaryTeal) },
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
                                     if (passwordVisible)
                                         Icons.Default.VisibilityOff
                                     else Icons.Default.Visibility,
-                                    null
+                                    null,
+                                    tint = TextSecondary
                                 )
                             }
                         },
@@ -128,7 +147,18 @@ fun LoginScreen(navController: NavController) {
                         else PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedTextColor = TextPrimary,
+                            unfocusedTextColor = TextPrimary,
+                            focusedBorderColor = PrimaryTeal,
+                            unfocusedBorderColor = Border,
+                            focusedLabelColor = PrimaryTeal,
+                            unfocusedLabelColor = TextSecondary,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            cursorColor = PrimaryTeal
+                        )
                     )
 
                     // ❗ Error Message
@@ -159,7 +189,7 @@ fun LoginScreen(navController: NavController) {
 
                                     val trimmedEmail = email.trim()
                                     val trimmedPassword = password.trim()
-                                    FirebaseAuth.getInstance().signInWithEmailAndPassword(trimmedEmail, trimmedPassword)
+                                    viewModel.signIn(trimmedEmail, trimmedPassword)
                                         .addOnCompleteListener { task ->
                                             isLoading = false
                                             if (task.isSuccessful) {
@@ -177,7 +207,8 @@ fun LoginScreen(navController: NavController) {
                             .fillMaxWidth()
                             .height(52.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Green)
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryTeal),
+                        contentPadding = PaddingValues(0.dp)
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
@@ -186,14 +217,14 @@ fun LoginScreen(navController: NavController) {
                                 modifier = Modifier.size(20.dp)
                             )
                         } else {
-                            Text("Login", fontWeight = FontWeight.Bold)
+                            Text("Login", fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
 
                     // 🧠 Forgot Password (placeholder)
                     Text(
                         text = "Forgot Password?",
-                        color = TextDim,
+                        color = TextSecondary,
                         fontSize = 12.sp,
                         modifier = Modifier.align(Alignment.End)
                     )
@@ -203,11 +234,11 @@ fun LoginScreen(navController: NavController) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("No account? ", color = TextDim)
+                        Text("No account? ", color = TextSecondary)
                         Text(
-                            text = "Register",
-                            color = Green,
-                            fontWeight = FontWeight.SemiBold,
+                            text = "Register Now",
+                            color = PrimaryTeal,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier.clickable {
                                 navController.navigate("register")
                             }

@@ -12,18 +12,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.firebase.firestore.FirebaseFirestore
-
-val DarkBg = Color(0xFF020617)
-val CardBg = Color(0xFF0F172A)
-val Green = Color(0xFF16A34A)
-val Border = Color(0xFF334155)
-val TextDim = Color(0xFF94A3B8)
+import com.example.dukapro.ui.viewmodel.DukaViewModel
+import com.example.dukapro.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddProductScreen(navController: NavController) {
+fun AddProductScreen(navController: NavController, viewModel: DukaViewModel = viewModel()) {
     var productName by remember { mutableStateOf("") }
     var productPrice by remember { mutableStateOf("") }
     var productStock by remember { mutableStateOf("") }
@@ -33,63 +29,75 @@ fun AddProductScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add New Product", color = Color.White) },
+                title = { Text("Add New Product", color = TextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = DarkBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundWhite)
             )
         },
-        containerColor = DarkBg
+        containerColor = BackgroundWhite
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             OutlinedTextField(
                 value = productName,
                 onValueChange = { productName = it },
-                label = { Text("Product Name", color = TextDim) },
+                label = { Text("Product Name") },
+                placeholder = { Text("Enter product name", color = TextSecondary) },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedBorderColor = Green,
-                    unfocusedBorderColor = Border
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    focusedBorderColor = PrimaryTeal,
+                    unfocusedBorderColor = Border,
+                    focusedLabelColor = PrimaryTeal,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
                 )
             )
 
             OutlinedTextField(
                 value = productPrice,
                 onValueChange = { productPrice = it },
-                label = { Text("Price (e.g. KES 100)", color = TextDim) },
+                label = { Text("Price (e.g. KES 100)") },
+                placeholder = { Text("Set price", color = TextSecondary) },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedBorderColor = Green,
-                    unfocusedBorderColor = Border
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    focusedBorderColor = PrimaryTeal,
+                    unfocusedBorderColor = Border,
+                    focusedLabelColor = PrimaryTeal,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
                 )
             )
 
             OutlinedTextField(
                 value = productStock,
                 onValueChange = { productStock = it },
-                label = { Text("Stock Quantity (e.g. 10 in stock)", color = TextDim) },
+                label = { Text("Stock Quantity") },
+                placeholder = { Text("e.g. 50 available", color = TextSecondary) },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(14.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedBorderColor = Green,
-                    unfocusedBorderColor = Border
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    focusedBorderColor = PrimaryTeal,
+                    unfocusedBorderColor = Border,
+                    focusedLabelColor = PrimaryTeal,
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White
                 )
             )
 
@@ -103,34 +111,26 @@ fun AddProductScreen(navController: NavController) {
                 onClick = {
                     isLoading = true
                     errorMessage = ""
-                    val db = FirebaseFirestore.getInstance()
-                    val product = hashMapOf(
-                        "name" to productName,
-                        "price" to productPrice,
-                        "stock" to productStock
-                    )
-                    db.collection("products")
-                        .add(product)
-                        .addOnSuccessListener {
-                            isLoading = false
+                    viewModel.addProduct(productName, productPrice, productStock) { success, error ->
+                        isLoading = false
+                        if (success) {
                             navController.popBackStack()
+                        } else {
+                            errorMessage = "Error: $error"
                         }
-                        .addOnFailureListener {
-                            isLoading = false
-                            errorMessage = "Error: ${it.message}"
-                        }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Green),
+                colors = ButtonDefaults.buttonColors(containerColor = PrimaryTeal),
                 shape = RoundedCornerShape(12.dp),
                 enabled = !isLoading && productName.isNotBlank() && productPrice.isNotBlank() && productStock.isNotBlank()
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text("Save Product", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                    Text("Save Product", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }

@@ -8,6 +8,7 @@ import com.example.dukapro.ui.screens.register.RegisterScreen
 import com.example.dukapro.ui.screens.dashboard.DashboardScreen
 import com.example.dukapro.ui.screens.payment.PaymentScreen
 import com.example.dukapro.ui.screens.addproduct.AddProductScreen
+import com.example.dukapro.ui.screens.orders.OrdersScreen
 
 // ── ROUTES (Centralized) ─────────────────────────────
 object Routes {
@@ -16,6 +17,7 @@ object Routes {
     const val DASHBOARD = "dashboard"
     const val PAYMENT = "payment"
     const val ADD_PRODUCT = "add_product"
+    const val ORDERS = "orders"
 }
 
 // ── NAV GRAPH ────────────────────────────────────────
@@ -51,6 +53,11 @@ fun AppNavGraph(navController: NavHostController) {
         // ➕ Add Product (Admin)
         composable(Routes.ADD_PRODUCT) {
             AddProductScreen(navController)
+        }
+
+        // 📦 Orders
+        composable(Routes.ORDERS) {
+            OrdersScreen(navController)
         }
     }
 }

@@ -16,62 +16,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.dukapro.data.models.Product
+import com.example.dukapro.ui.viewmodel.DukaViewModel
 import com.example.dukapro.navigation.Routes
-import com.google.firebase.firestore.FirebaseFirestore
-
-// Colors
-val DarkBg = Color(0xFF020617)
-val CardBg = Color(0xFF0F172A)
-val Border = Color(0xFF334155)
-val Green = Color(0xFF16A34A)
-val TextDim = Color(0xFF94A3B8)
-
-// Data Model
-data class Product(
-    val id: String = "",
-    val name: String = "",
-    val price: String = "",
-    val stock: String = ""
-)
+import com.example.dukapro.ui.theme.*
 
 @Composable
-fun DashboardScreen(navController: NavController) {
+fun DashboardScreen(navController: NavController, viewModel: DukaViewModel = viewModel()) {
 
     var search by remember { mutableStateOf("") }
-    val products = remember { mutableStateListOf<Product>() }
-    var totalSales by remember { mutableIntStateOf(0) }
-    var isLoading by remember { mutableStateOf(true) }
-
-    // Fetch products and calculate sales from Firebase
-    LaunchedEffect(Unit) {
-        val db = FirebaseFirestore.getInstance()
-        
-        // Listen for products
-        db.collection("products").addSnapshotListener { snapshot, _ ->
-            if (snapshot != null) {
-                products.clear()
-                products.addAll(snapshot.toObjects(Product::class.java).mapIndexed { index, p -> 
-                    p.copy(id = snapshot.documents[index].id)
-                })
-            }
-            isLoading = false
-        }
-
-        // Listen for sales
-        db.collection("payments").addSnapshotListener { snapshot, _ ->
-            if (snapshot != null) {
-                var sum = 0
-                for (doc in snapshot.documents) {
-                    val amountStr = doc.getString("amount") ?: "0"
-                    // Extract number from "KES 300"
-                    val numericValue = amountStr.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
-                    sum += numericValue
-                }
-                totalSales = sum
-            }
-        }
-    }
+    val products by viewModel.products.collectAsState()
+    val totalSales by viewModel.totalSales.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     val filtered = products.filter {
         it.name.contains(search, ignoreCase = true)
@@ -80,7 +38,7 @@ fun DashboardScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBg)
+            .background(BackgroundWhite)
     ) {
 
         Column(
@@ -92,25 +50,33 @@ fun DashboardScreen(navController: NavController) {
             // 🔝 Header
             Text(
                 text = "DukaPro Dashboard",
-                color = Color.White,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                color = TextPrimary,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.ExtraBold
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // 🔍 Search
             OutlinedTextField(
                 value = search,
                 onValueChange = { search = it },
-                placeholder = { Text("Search product...", color = TextDim) },
-                leadingIcon = { Icon(
-                    Icons.Default.Search, null) },
+                placeholder = { Text("Search products...", color = TextSecondary) },
+                leadingIcon = { Icon(Icons.Default.Search, null, tint = PrimaryTeal) },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary,
+                    focusedBorderColor = PrimaryTeal,
+                    unfocusedBorderColor = Border,
+                    focusedContainerColor = CardBg,
+                    unfocusedContainerColor = CardBg,
+                    cursorColor = PrimaryTeal
+                )
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // 📊 Stats
             Row(
@@ -118,28 +84,55 @@ fun DashboardScreen(navController: NavController) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 StatCard("Products", "${products.size}", Modifier.weight(1f))
-                StatCard("Sales", "KES ${totalSales}", Modifier.weight(1f))
+                StatCard("Total Sales", "KES ${totalSales}", Modifier.weight(1f))
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 📦 Orders Shortcut
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { navController.navigate(Routes.ORDERS) },
+                colors = CardDefaults.cardColors(containerColor = CardBg),
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, AccentPeach.copy(alpha = 0.2f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.ListAlt, contentDescription = null, tint = AccentPeach)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text("Manage Orders", color = TextPrimary, fontWeight = FontWeight.Bold)
+                        Text("Track customer deliveries", color = TextSecondary, fontSize = 12.sp)
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    Icon(Icons.Default.ChevronRight, contentDescription = null, tint = TextSecondary)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Your Products",
-                color = Color.White,
+                text = "Your Inventory",
+                color = TextPrimary,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // 📦 Product List
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = Green)
+                    CircularProgressIndicator(color = AccentPeach)
                 }
             } else if (products.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No products found. Add some!", color = TextDim)
+                    Text("No products found.", color = TextSecondary)
                 }
             } else {
                 LazyColumn(
@@ -159,7 +152,8 @@ fun DashboardScreen(navController: NavController) {
             onClick = {
                 navController.navigate(Routes.ADD_PRODUCT)
             },
-            containerColor = Green,
+            containerColor = PrimaryTeal,
+            contentColor = Color.White,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -174,15 +168,17 @@ fun DashboardScreen(navController: NavController) {
 fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
 
     Card(
-        modifier = modifier.height(90.dp),
+        modifier = modifier.height(100.dp),
         colors = CardDefaults.cardColors(containerColor = CardBg),
-        shape = RoundedCornerShape(14.dp)
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(value, color = Color.White, fontWeight = FontWeight.Bold)
-            Text(title, color = TextDim, fontSize = 12.sp)
+            Text(value, color = PrimaryTeal, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+            Text(title, color = TextSecondary, fontSize = 12.sp)
         }
     }
 }
@@ -196,23 +192,25 @@ fun ProductCard(product: Product, onClick: () -> Unit) {
             .fillMaxWidth()
             .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = CardBg),
-        shape = RoundedCornerShape(14.dp)
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
 
         Row(
             modifier = Modifier
-                .padding(14.dp)
+                .padding(16.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
 
             Column {
-                Text(product.name, color = Color.White, fontWeight = FontWeight.Bold)
-                Text(product.price, color = Green)
-                Text(product.stock, color = TextDim, fontSize = 12.sp)
+                Text(product.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(product.price, color = PrimaryTeal, fontWeight = FontWeight.SemiBold)
+                Text(product.stock, color = TextSecondary, fontSize = 12.sp)
             }
 
-            Icon(Icons.Default.ArrowForward, contentDescription = null, tint = TextDim)
+            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = TextSecondary)
         }
     }
 }
