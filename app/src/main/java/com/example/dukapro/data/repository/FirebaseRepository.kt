@@ -56,6 +56,19 @@ class FirebaseRepository {
         db.collection("products").add(product).await()
     }
 
+    suspend fun seedProducts(products: List<Product>) {
+        val batch = db.batch()
+        products.forEach { product ->
+            val docRef = db.collection("products").document()
+            batch.set(docRef, hashMapOf(
+                "name" to product.name,
+                "price" to product.price,
+                "stock" to product.stock
+            ))
+        }
+        batch.commit().await()
+    }
+
     fun getOrders(): Flow<List<Order>> = callbackFlow {
         val subscription = db.collection("payments")
             .orderBy("timestamp", Query.Direction.DESCENDING)

@@ -4,8 +4,9 @@ package com.example.dukapro.ui.screens.dashboard
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -159,18 +160,32 @@ fun DashboardScreen(navController: NavController, viewModel: DukaViewModel = vie
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // 📦 Product List
+            // 📦 Product Grid
             if (isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = AccentPeach)
                 }
             } else if (products.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No products found.", color = TextSecondary)
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Your store is empty.", color = TextSecondary)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = { viewModel.seedSampleProducts() },
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryTeal)
+                    ) {
+                        Text("Add 20 Sample Products", color = Color.White)
+                    }
                 }
             } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     items(filtered) { product ->
                         ProductCard(product) {
@@ -220,31 +235,54 @@ fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
 // 📦 Product Card
 @Composable
 fun ProductCard(product: Product, onClick: () -> Unit) {
-
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = CardBg),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Border.copy(alpha = 0.3f))
     ) {
-
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Column(
+            modifier = Modifier.padding(12.dp)
         ) {
-
-            Column {
-                Text(product.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text(product.price, color = PrimaryTeal, fontWeight = FontWeight.SemiBold)
-                Text(product.stock, color = TextSecondary, fontSize = 12.sp)
+            // Placeholder for Product Image
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .background(PrimaryTeal.copy(alpha = 0.05f), RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Inventory2, contentDescription = null, tint = PrimaryTeal.copy(alpha = 0.3f), modifier = Modifier.size(40.dp))
             }
 
-            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = TextSecondary)
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = product.name,
+                color = TextPrimary,
+                fontWeight = FontWeight.Bold,
+                fontSize = 15.sp,
+                maxLines = 1
+            )
+            
+            Text(
+                text = "KES ${product.price}",
+                color = PrimaryTeal,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 14.sp
+            )
+            
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 4.dp)
+            ) {
+                Icon(Icons.Default.Storage, contentDescription = null, modifier = Modifier.size(12.dp), tint = TextSecondary)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(product.stock, color = TextSecondary, fontSize = 11.sp)
+            }
         }
     }
 }

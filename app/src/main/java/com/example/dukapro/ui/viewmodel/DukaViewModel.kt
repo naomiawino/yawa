@@ -103,4 +103,34 @@ class DukaViewModel(private val repository: FirebaseRepository = FirebaseReposit
             repository.updateOrderStatus(orderId, newStatus)
         }
     }
+
+    fun seedSampleProducts() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val sampleProducts = listOf(
+                Product(name = "Smart Watch Series 7", price = "12000", stock = "15"),
+                Product(name = "Wireless Earbuds Pro", price = "4500", stock = "30"),
+                Product(name = "Gaming Mouse RGB", price = "2500", stock = "20"),
+                Product(name = "Mechanical Keyboard", price = "7000", stock = "10"),
+                Product(name = "HD Webcam 1080p", price = "3500", stock = "25"),
+                Product(name = "Bluetooth Speaker", price = "5000", stock = "40"),
+                Product(name = "Portable Power Bank", price = "3000", stock = "50"),
+                Product(name = "USB-C Hub Adapter", price = "2000", stock = "35"),
+                Product(name = "Laptop Stand", price = "1500", stock = "60"),
+                Product(name = "LED Desk Lamp", price = "2200", stock = "45"),
+                Product(name = "Smartphone Gimbal", price = "9000", stock = "8"),
+                Product(name = "External SSD 1TB", price = "15000", stock = "12"),
+                Product(name = "Wireless Charger", price = "1800", stock = "70"),
+                Product(name = "Noise Canceling Headphones", price = "25000", stock = "5"),
+                Product(name = "Dual Monitor Arm", price = "8000", stock = "15"),
+                Product(name = "Smart Home Plug", price = "1200", stock = "100"),
+                Product(name = "Fitness Tracker", price = "3800", stock = "40"),
+                Product(name = "Graphic Tablet", price = "11000", stock = "10"),
+                Product(name = "Electric Screwdriver", price = "4000", stock = "20"),
+                Product(name = "VR Headset", price = "45000", stock = "3")
+            )
+            repository.seedProducts(sampleProducts)
+            _isLoading.value = false
+        }
+    }
 }
